@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoPay Gateway - Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0f0f17; color: #fff; font-family: 'Segoe UI', sans-serif; }
+  .navbar { background: #1a1a2e; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a4a; }
+  .logo { font-size: 1.4rem; font-weight: 700; color: #00d4ff; }
+  .logo span { color: #fff; }
+  #btnConnect { background: #00d4ff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  #walletInfo { font-size: 12px; color: #888; }
+  .hero { text-align: center; padding: 60px 20px 40px; }
+  .hero h1 { font-size: 2.5rem; margin-bottom: 12px; }
+  .hero h1 span { color: #00d4ff; }
+  .hero p { color: #888; font-size: 1rem; max-width: 500px; margin: 0 auto; }
+  .cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 0 20px 40px; }
+  .card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 16px; padding: 28px; width: 320px; }
+  .card h3 { font-size: 1rem; color: #00d4ff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card input, .card select {
+    width: 100%; background: #0f0f17; border: 1px solid #2a2a4a;
+    color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 14px; margin-bottom: 10px;
+  }
+  .card input::placeholder { color: #555; }
+  .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px; }
+  .btn-blue { background: #00d4ff; color: #000; }
+  .btn-green { background: #00ff88; color: #000; }
+  .btn-red { background: #ff4444; color: #fff; }
+  .btn-yellow { background: #f59e0b; color: #000; }
+  .msg { font-size: 12px; margin-top: 10px; padding: 8px 12px; border-radius: 6px; display: none; }
+  .msg.success { background: #0d2e1a; color: #00ff88; display: block; }
+  .msg.error { background: #2e0d0d; color: #ff4444; display: block; }
+  .msg.info { background: #0d1e2e; color: #00d4ff; display: block; }
+  .stats { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; padding: 0 20px 40px; }
+  .stat-box { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 20px 28px; text-align: center; min-width: 160px; }
+  .stat-box .label { font-size: 11px; color: #555; margin-bottom: 6px; }
+  .stat-box .value { font-size: 1.4rem; font-weight: 700; color: #00d4ff; }
+  .section-title { text-align: center; font-size: 1rem; color: #555; margin-bottom: 20px; letter-spacing: 0.1em; }
+  .payment-result { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 12px; padding: 16px; margin-top: 12px; font-size: 13px; display: none; }
+  .payment-result .row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #2a2a3a; }
+  .payment-result .row:last-child { border-bottom: none; }
+  .payment-result .key { color: #888; }
+  .payment-result .val { color: #00ff88; }
+  .fee-info { font-size: 11px; color: #555; text-align: center; margin-top: 8px; }
+  footer { text-align: center; padding: 30px; color: #333; font-size: 12px; border-top: 1px solid #1a1a2e; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">Crypto<span>Pay</span></div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div id="walletInfo">Not connected</div>
+    <button id="btnConnect" onclick="connectWallet()">Connect Wallet</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Crypto Payment <span>Gateway</span></h1>
+  <p>Accept USDC payments on Base network. Simple, fast, and decentralized.</p>
+</div>
+
+<div class="section-title">LIVE STATS</div>
+<div class="stats">
+  <div class="stat-box"><div class="label">YOUR FEES COLLECTED</div><div class="value" id="statFees">-</div></div>
+  <div class="stat-box"><div class="label">CURRENT FEE</div><div class="value" id="statFee">1%</div></div>
+  <div class="stat-box"><div class="label">NETWORK</div><div class="value" style="color:#00ff88;">Base</div></div>
+</div>
+
+<div class="section-title">OWNER PANEL</div>
+<div class="cards">
+
+  <div class="card">
+    <h3>➕ Register Merchant</h3>
+    <input id="regMerchantId" placeholder="Merchant ID (e.g. shop123)" />
+    <input id="regWallet" placeholder="Merchant Wallet Address (0x...)" />
+    <button class="btn btn-blue" onclick="registerMerchant()">Register Merchant</button>
+    <div id="regMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h3>🔍 Check Merchant</h3>
+    <input id="checkMerchantId" placeholder="Merchant ID" />
+    <button class="btn btn-blue" onclick="checkMerchant()">Check Status</button>
+    <div id="checkMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h3>⚙️ Manage Merchant</h3>
+    <input id="manageMerchantId" placeholder="Merchant ID" />
+    <button class="btn btn-red" onclick="deactivateMerchant()" style="margin-bottom:8px;">Deactivate</button>
+    <button class="btn btn-green" onclick="reactivateMerchant()">Reactivate</button>
+    <div id="manageMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h3>💰 Fee Management</h3>
+    <input id="newFee" placeholder="New fee % (max 5)" type="number" min="0" max="5" />
+    <button class="btn btn-yellow" onclick="setFee()" style="margin-bottom:8px;">Update Fee %</button>
+    <button class="btn btn-green" onclick="withdrawFees()">Withdraw My Fees</button>
+    <div id="feeMsg" class="msg"></div>
+  </div>
+
+</div>
+
+<div class="section-title">PAYMENT TOOLS</div>
+<div class="cards">
+
+  <div class="card">
+    <h3>💳 Make a Payment</h3>
+    <input id="payOrderId" placeholder="Order ID (unique)" />
+    <input id="payMerchantId" placeholder="Merchant ID" />
+    <input id="payAmount" placeholder="Amount in USDC (e.g. 10)" type="number" />
+    <button class="btn btn-green" onclick="makePayment()">Pay with USDC</button>
+    <div class="fee-info">1% fee will be deducted automatically</div>
+    <div id="payMsg" class="msg"></div>
+  </div>
+
+  <div class="card">
+    <h3>🔎 Check Payment</h3>
+    <input id="checkOrderId" placeholder="Order ID" />
+    <button class="btn btn-blue" onclick="checkPayment()">Check Status</button>
+    <div id="checkPayMsg" class="msg"></div>
+    <div id="paymentResult" class="payment-result"></div>
+  </div>
+
+</div>
+
+<footer>
+  CryptoPay Gateway — Built on Base Network — Contract: 0xb6beFa9ec5bfC7DaD2b5610579ca4fFf0506A005
+</footer>
+
+<script>
+const CONTRACT = "0xb6beFa9ec5bfC7DaD2b5610579ca4fFf0506A005";
+const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const BASE_CHAIN_ID = "0x2105";
+let wallet = null;
+
+function encodeFunc(sig) {
+  return sig;
+}
+
+async function connectWallet() {
+  if (!window.ethereum) { alert("Please install MetaMask or Rabby Wallet"); return; }
+  try {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    wallet = accounts[0];
+    const chainId = await window.ethereum.request({ method: "eth_chainId" });
+    if (chainId !== BASE_CHAIN_ID) {
+      await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BASE_CHAIN_ID }] });
+    }
+    document.getElementById("walletInfo").textContent = wallet.slice(0,6) + "..." + wallet.slice(-4);
+    document.getElementById("btnConnect").textContent = "✓ Connected";
+    document.getElementById("btnConnect").style.background = "#0d2e1a";
+    document.getElementById("btnConnect").style.color = "#00ff88";
+    loadStats();
+  } catch(e) { alert("Connection failed: " + e.message); }
+}
+
+async function loadStats() {
+  try {
+    const feeData = await window.ethereum.request({
+      method: "eth_call",
+      params: [{ to: CONTRACT, data: "0xaec92e5c" }, "latest"]
+    });
+    const fees = parseInt(feeData, 16) / 1e6;
+    document.getElementById("statFees").textContent = fees.toFixed(2) + " USDC";
+
+    const feePercentData = await window.ethereum.request({
+      method: "eth_call",
+      params: [{ to: CONTRACT, data: "0xc6d69a30" }, "latest"]
+    });
+    const feePercent = parseInt(feePercentData, 16);
+    document.getElementById("statFee").textContent = feePercent + "%";
+  } catch(e) { console.log("Stats error:", e); }
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = "msg " + type;
+}
+
+function padHex(str, len) {
+  return str.padStart(len, "0");
+}
+
+function encodeString(str) {
+  const bytes = new TextEncoder().encode(str);
+  const lenHex = padHex(bytes.length.toString(16), 64);
+  let dataHex = "";
+  for (let b of bytes) dataHex += b.toString(16).padStart(2, "0");
+  const paddedData = dataHex.padEnd(Math.ceil(dataHex.length / 64) * 64, "0");
+  return lenHex + paddedData;
+}
+
+function encodeAddress(addr) {
+  return padHex(addr.slice(2).toLowerCase(), 64);
+}
+
+async function registerMerchant() {
+  if (!wallet) { showMsg("regMsg", "Connect wallet first", "error"); return; }
+  const merchantId = document.getElementById("regMerchantId").value.trim();
+  const merchantWallet = document.getElementById("regWallet").value.trim();
+  if (!merchantId || !merchantWallet) { showMsg("regMsg", "Fill all fields", "error"); return; }
+
+  try {
+    showMsg("regMsg", "Sending transaction...", "info");
+    const offset1 = padHex("40", 64);
+    const encodedId = encodeString(merchantId);
+    const encodedWallet = encodeAddress(merchantWallet);
+    const data = "0x3c6b1a03" + offset1 + encodedWallet + encodedId;
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [{ from: wallet, to: CONTRACT, data, gas: "0x493E0" }]
+    });
+    showMsg("regMsg", "Merchant registered successfully!", "success");
+  } catch(e) { showMsg("regMsg", "Error: " + e.message, "error"); }
+}
+
+async function checkMerchant() {
+  if (!wallet) { showMsg("checkMsg", "Connect wallet first", "error"); return; }
+  const merchantId = document.getElementById("checkMerchantId").value.trim();
+  if (!merchantId) { showMsg("checkMsg", "Enter merchant ID", "error"); return; }
+
+  try {
+    const offset = padHex("20", 64);
+    const encodedId = encodeString(merchantId);
+    const data = "0x3cf4a776" + offset + encodedId;
+
+    const result = await window.ethereum.request({
+      method: "eth_call",
+      params: [{ to: CONTRACT, data }, "latest"]
+    });
+
+    const addr = "0x" + result.slice(26, 66);
+    const active = result.slice(66, 130);
+    const isActive = parseInt(active, 16) === 1;
+
+    if (addr === "0x0000000000000000000000000000000000000000") {
+      showMsg("checkMsg", "Merchant not found", "error");
+    } else {
+      showMsg("checkMsg", `Wallet: ${addr.slice(0,8)}... | Status: ${isActive ? "Active ✓" : "Inactive ✗"}`, isActive ? "success" : "error");
+    }
+  } catch(e) { showMsg("checkMsg", "Error: " + e.message, "error"); }
+}
+
+async function deactivateMerchant() {
+  if (!wallet) { showMsg("manageMsg", "Connect wallet first", "error"); return; }
+  const merchantId = document.getElementById("manageMerchantId").value.trim();
+  if (!merchantId) { showMsg("manageMsg", "Enter merchant ID", "error"); return; }
+
+  try {
+    showMsg("manageMsg", "Sending transaction...", "info");
+    const offset = padHex("20", 64);
+    const encodedId = encodeString(merchantId);
+    const data = "0x94dcb7b8" + offset + encodedId;
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [{ from: wallet, to: CONTRACT, data, gas: "0x30000" }]
+    });
+    showMsg("manageMsg", "Merchant deactivated!", "success");
+  } catch(e) { showMsg("manageMsg", "Error: " + e.message, "error"); }
+}
+
+async function reactivateMerchant() {
+  if (!wallet) { showMsg("manageMsg", "Connect wallet first", "error"); return; }
+  const merchantId = document.getElementById("manageMerchantId").value.trim();
+  if (!merchantId) { showMsg("manageMsg", "Enter merchant ID", "error"); return; }
+
+  try {
+    showMsg("manageMsg", "Sending transaction...", "info");
+    const offset = padHex("20", 64);
+    const encodedId = encodeString(merchantId);
+    const data = "0x5a6e75d3" + offset + encodedId;
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [{ from: wallet, to: CONTRACT, data, gas: "0x30000" }]
+    });
+    showMsg("manageMsg", "Merchant reactivated!", "success");
+  } catch(e) { showMsg("manageMsg", "Error: " + e.message, "error"); }
+}
+
+async function setFee() {
+  if (!wallet) { showMsg("feeMsg", "Connect wallet first", "error"); return; }
+  const fee = document.getElementById("newFee").value;
+  if (fee === "" || fee < 0 || fee > 5) { showMsg("feeMsg", "Enter a valid fee (0-5)", "error"); return; }
+
+  try {
+    showMsg("feeMsg", "Sending transaction...", "info");
+    const feeHex = padHex(parseInt(fee).toString(16), 64);
+    const data = "0x45596e2e" + feeHex;
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [{ from: wallet, to: CONTRACT, data, gas: "0x15000" }]
+    });
+    showMsg("feeMsg", "Fee updated to " + fee + "%!", "success");
+    loadStats();
+  } catch(e) { showMsg("feeMsg", "Error: " + e.message, "error"); }
+}
+
+async function withdrawFees() {
+  if (!wallet) { showMsg("feeMsg", "Connect wallet first", "error"); return; }
+
+  try {
+    showMsg("feeMsg", "Withdrawing fees...", "info");
+    const data = "0x4d0e75d3";
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [{ from: wallet, to: CONTRACT, data, gas: "0x30000" }]
+    });
+    showMsg("feeMsg", "Fees withdrawn successfully!", "success");
+    setTimeout(loadStats, 4000);
+  } catch(e) { showMsg("feeMsg", "Error: " + e.message, "error"); }
+}
+
+async function approveUSDC(amount) {
+  const amountHex = padHex(BigInt(Math.round(amount * 1e6)).toString(16), 64);
+  const contractHex = padHex(CONTRACT.slice(2).toLowerCase(), 64);
+  const data = "0x095ea7b3" + contractHex + amountHex;
+
+  return await window.ethereum.request({
+    method: "eth_sendTransaction",
+    params: [{ from: wallet, to: USDC, data, gas: "0x15000" }]
+  });
+}
+
+async function makePayment() {
+  if (!wallet) { showMsg("payMsg", "Connect wallet first", "error"); return; }
+  const orderId = document.getElementById("payOrderId").value.trim();
+  const merchantId = document.getElementById("payMerchantId").value.trim();
+  const amount = parseFloat(document.getElementById("payAmount").value);
+
+  if (!orderId || !merchantId || !amount) { showMsg("payMsg", "Fill all fields", "error"); return; }
+  if (amount <= 0) { showMsg("payMsg", "Amount must be > 0", "error"); return; }
+
+  try {
+    showMsg("payMsg", "Step 1/2: Approving USDC...", "info");
+    await approveUSDC(amount);
+
+    await new Promise(r => setTimeout(r, 3000));
+
+    showMsg("payMsg", "Step 2/2: Sending payment...", "info");
+
+    const amountRaw = BigInt(Math.round(amount * 1e6));
+    const offset1 = padHex("60", 64);
+    const offset2 = padHex((96 + Math.ceil(new TextEncoder().encode(orderId).length / 32) * 32 + 32).toString(16), 64);
+    const amountHex = padHex(amountRaw.toString(16), 64);
+    const encodedOrder = encodeString(orderId);
+    const encodedMerchant = encodeString(merchantId);
+    const data = "0x7d783a3e" + offset1 + offset2 + amountHex + encodedOrder + encodedMerchant;
+
+    await window.ethereum.request({
+      method: "eth_sendTransaction",
+      params: [{ from: wallet, to: CONTRACT, data, gas: "0x493E0" }]
+    });
+
+    showMsg("payMsg", `Payment of ${amount} USDC sent successfully!`, "success");
+  } catch(e) { showMsg("payMsg", "Error: " + e.message, "error"); }
+}
+
+async function checkPayment() {
+  if (!wallet) { showMsg("checkPayMsg", "Connect wallet first", "error"); return; }
+  const orderId = document.getElementById("checkOrderId").value.trim();
+  if (!orderId) { showMsg("checkPayMsg", "Enter order ID", "error"); return; }
+
+  try {
+    const offset = padHex("20", 64);
+    const encodedId = encodeString(orderId);
+    const data = "0x9f3c3a82" + offset + encodedId;
+
+    const result = await window.ethereum.request({
+      method: "eth_call",
+      params: [{ to: CONTRACT, data }, "latest"]
+    });
+
+    const timestamp = parseInt(result.slice(194, 258), 16);
+
+    if (timestamp === 0) {
+      showMsg("checkPayMsg", "Payment not found", "error");
+      document.getElementById("paymentResult").style.display = "none";
+    } else {
+      const payer = "0x" + result.slice(26, 66);
+      const amount = parseInt(result.slice(130, 194), 16) / 1e6;
+      const fee = parseInt(result.slice(194, 258), 16) / 1e6;
+      const date = new Date(timestamp * 1000).toLocaleString();
+
+      showMsg("checkPayMsg", "Payment found!", "success");
+      document.getElementById("paymentResult").style.display = "block";
+      document.getElementById("paymentResult").innerHTML = `
+        <div class="row"><span class="key">Payer</span><span class="val">${payer.slice(0,8)}...${payer.slice(-4)}</span></div>
+        <div class="row"><span class="key">Amount</span><span class="val">${amount} USDC</span></div>
+        <div class="row"><span class="key">Fee</span><span class="val">${fee} USDC</span></div>
+        <div class="row"><span class="key">Date</span><span class="val">${date}</span></div>
+        <div class="row"><span class="key">Status</span><span class="val">Completed ✓</span></div>
+      `;
+    }
+  } catch(e) { showMsg("checkPayMsg", "Error: " + e.message, "error"); }
+}
+</script>
+</body>
+</html>
