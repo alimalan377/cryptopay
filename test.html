@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Shop - CryptoPay Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f5f5f5; font-family: 'Segoe UI', sans-serif; }
+  .header { background: #fff; padding: 16px 32px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-size: 1.3rem; font-weight: 700; color: #333; }
+  .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+  h2 { color: #333; margin-bottom: 24px; font-size: 1.4rem; }
+  .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .product { background: #fff; border-radius: 16px; padding: 24px; border: 1px solid #eee; }
+  .product .emoji { font-size: 2.5rem; margin-bottom: 12px; }
+  .product h3 { font-size: 1rem; color: #333; margin-bottom: 6px; }
+  .product p { font-size: 13px; color: #888; margin-bottom: 16px; }
+  .product .price { font-size: 1.3rem; font-weight: 700; color: #00a86b; margin-bottom: 16px; }
+  .pay-button {
+    background: #0052ff;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .pay-button:hover { opacity: 0.85; }
+  .info-box { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 32px; border: 1px solid #eee; }
+  .info-box h3 { font-size: 1rem; color: #333; margin-bottom: 12px; }
+  .code-block { background: #1a1a2e; color: #00d4ff; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 13px; line-height: 1.8; overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🛍️ Demo Shop</div>
+  <div style="font-size:12px; color:#888;">Powered by CryptoPay Gateway</div>
+</div>
+
+<div class="container">
+
+  <div class="info-box">
+    <h3>📋 How merchants use CryptoPay — just 2 lines of code:</h3>
+    <div class="code-block">
+      &lt;script src="https://cryptopay-gilt.vercel.app/widget.js"&gt;&lt;/script&gt;<br><br>
+      &lt;button data-cryptopay data-order-id="ORDER123" data-merchant-id="YOUR_MERCHANT_ID" data-amount="10"&gt;<br>
+      &nbsp;&nbsp;Pay with USDC<br>
+      &lt;/button&gt;
+    </div>
+  </div>
+
+  <h2>🛒 Products</h2>
+  <div class="products">
+
+    <div class="product">
+      <div class="emoji">🎮</div>
+      <h3>Gaming Package</h3>
+      <p>Premium gaming bundle with exclusive items</p>
+      <div class="price">10 USDC</div>
+      <button 
+        class="pay-button"
+        data-cryptopay
+        data-order-id="ORDER-001"
+        data-merchant-id="YOUR_MERCHANT_ID"
+        data-amount="10">
+        Pay with USDC
+      </button>
+    </div>
+
+    <div class="product">
+      <div class="emoji">🎨</div>
+      <h3>Design Assets</h3>
+      <p>Professional design templates and resources</p>
+      <div class="price">25 USDC</div>
+      <button
+        class="pay-button"
+        data-cryptopay
+        data-order-id="ORDER-002"
+        data-merchant-id="YOUR_MERCHANT_ID"
+        data-amount="25">
+        Pay with USDC
+      </button>
+    </div>
+
+    <div class="product">
+      <div class="emoji">📚</div>
+      <h3>Online Course</h3>
+      <p>Complete Web3 development course</p>
+      <div class="price">50 USDC</div>
+      <button
+        class="pay-button"
+        data-cryptopay
+        data-order-id="ORDER-003"
+        data-merchant-id="YOUR_MERCHANT_ID"
+        data-amount="50">
+        Pay with USDC
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cryptopay-gilt.vercel.app/widget.js"></script>
+
+</body>
+</html>
